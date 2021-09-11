@@ -1,5 +1,5 @@
-let a = 6;
-let b = 3;
+let a;
+let b;
 
 
 function add() {
