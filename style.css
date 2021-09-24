@@ -60,4 +60,22 @@
           font-size: 2.5rem;
         }
 
-        
+        footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100px;
+            height: 50px;
+            margin-bottom: 1em;
+        }
+
+        img:hover {
+            cursor: pointer;
+        }
