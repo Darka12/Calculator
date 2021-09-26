@@ -1,123 +1,125 @@
 
-// Acts as a black template for us and the program so we/it know/s where to pass values and so we have a cleared calculator.
+// Getting all the relevent HTML elements so we can use them
+const numberButtons = document.querySelectorAll('[data-number]')
+const operationButtons = document.querySelectorAll('[data-operation]')
+const deleteButton = document.querySelector('[data-delete]')
+const clearAllButton = document.querySelector('[data-all-clear]')
+const equalsButton = document.querySelector('[data-equals]')
+const currentNumberHtmlElement = document.querySelector('[data-current-operand]')
+const previousNumberHtmlElement = document.querySelector('[data-previous-operand]')
+
+
+// Creating a class for the calculator as a template for it so the code knows where certain values go
 class Calculator {
-    constructor(previousOperandTextElement, currentOperandTextElement) {
-      this.previousOperandTextElement = previousOperandTextElement
-      this.currentOperandTextElement = currentOperandTextElement
-      this.clear()
+    constructor(currentNumberHtmlElement, previousNumberHtmlElement) {
+        this.previousNumberHtmlElement = previousNumberHtmlElement
+        this.currentNumberHtmlElement = currentNumberHtmlElement
+        this.clearAll()
     }
-  
-    // When called deletes all values in the following fields, hence the empty quotes/undefined.
-    clear() {
-      this.currentOperand = ''
-      this.previousOperand = ''
-      this.operation = undefined
+    // Below will be all the functions we require
+    
+    // This function clears the calculator completely 
+    clearAll() {
+        this.currentNumber = ''
+        this.previousNumber = ''
+        this.operation = undefined
     }
-  
-    // Deletes the most recently entered integer/decimal point
+
+    // This function deletes the latest typed integer
     delete() {
-      this.currentOperand = this.currentOperand.toString().slice(0, -1)
+        this.currentNumber = this.currentNumber.toString().substring(0, this.currentNumber.length -1)
     }
-  
-    // If number passed is a decimal point and the current operand already contains a decimal point then return. Takes the numbers passed to it and converts them from an integer to a string as to avoid any unintended operations occuring at this point. 
-    appendNumber(number) {
-        if(number === '.' && this.currentOperand.includes('.')) return
-      this.currentOperand = this.currentOperand.toString() + number.toString()
+
+    // This function prevents more than one decimal point from being typed and joins all current number integers/decimal points being typed together and into a string to prevent an actual operation from being done
+    numberToString(number) {
+        if(number === '.' && this.currentNumber.includes('.')) return
+        this.currentNumber = this.currentNumber.toString() + number.toString()
     }
-  
-    // If the current operand is nothing then return. If the previous operand does not equal nothing then run the compute function. Takes the operator symbol that was passed to it and assigns this.operation to operation so the program knows which operator we wish to use. Current operand is then turned into the previous operand position because obviously we wish to enter the next number in the current operand position. Current operand is then '' to clear the current operand position to make it clear for the next integer you type in. 
-    chooseOperation(operation) {
-        if(this.currentOperand === '') return
-        if(this.previousOperand !== '') {
+
+    // If currentNumber is empty then do not run anything
+    // If previousNumber is not empty then run the compute function
+    // Assign the innertext of the chosen operation button to this.operation 
+    // Assign the currentNumber to the previousNumber and clear the current number (this is done so that after the operation has been chosen the second number number can be typed into the currentNumber position)
+    chosenOperation(operation) {
+        if(this.currentNumber === '') return
+        if(this.previousNumber !== '') {
             this.compute()
         }
-      this.operation = operation
-      this.previousOperand = this.currentOperand
-      this.currentOperand = ''
+        this.operation = operation
+        this.previousNumber = this.currentNumber
+        this.currentNumber = ''
     }
-  
-    // Turns both operands back into floating point numbers. 
-    // If either operand is not a number then return.
-    // Run computation that correlates with the operation chosen by the user. If it is none of them then return.
-    // When computation has been run then show it in the currentOperand position. Also clear both the operation and previousOperand positions. 
+
+    // We create an equation variable but assign nothing specific to it seeing as it could equal a few different things depending on what operator the user chose (as you will see a few lines further down)
+    // We turn the previousNumber and currentNumber into floating point numbers
+    // Switch statement is checked and then runs whichever equation corresponds to the operation the user chose
+    // When equation is run the result is shown in the currentNumber position and the previousNumber and operation is cleared
     compute() {
-      let computation 
-      const prev = parseFloat(this.previousOperand)
-      const current = parseFloat(this.currentOperand)
-      if(isNaN(prev) || isNaN(current)) return
-      switch (this.operation) {
-          case '+': 
-            computation = prev + current
-            break
-          case '-':
-            computation = prev - current
-            break
+        let equation
+        const previous = parseFloat(this.previousNumber)
+        const current = parseFloat(this.currentNumber)
+        if(isNaN(previous) || isNaN(current)) return
+        switch(this.operation) {
+          case '+':
+            equation = previous + current
+            break;
+          case '-': 
+            equation = previous - current
+            break;
           case '*':
-            computation = prev * current
-            break
+            equation = previous * current
+            break;
           case '÷':
-            computation = prev / current
-            break
+            equation = previous / current
+            break;
           default:
             return
-      }
-      this.currentOperand = computation
-      this.operation = undefined
-      this.previousOperand = ''
+        }
+        this.currentNumber = equation
+        this.operation = undefined
+        this.previousNumber = ''
     }
-  
 
-    // Convert number that was chosen by the user to a string.
-    // Split string number to all digits before the decimal point, and convert back to a floating point number
-    // Split string number to all digits after the decimal point.
-    // if integerDigits is not a number then integerDisplay equals nothing. If it is a number then integerDisplay equals integerDigits converted to a string (in default english format) while enforcing zero fraction digits aka 13.13 = "13".
-    // If decimalDigits does not equal nothing then return integerDisplay var and decimalDigits var joined together as a string with a decimal point inbetween them. If decimalDigits equals nothing then just return the integerDisplay. 
+    // Splitting the current into two parts (all numbers before the decimal point and all numbers after the decimal point)
+    // Declaring a beforeDecimalPointDisplay variable as it could equal nothing as well as a 'number'
+    // If beforeDecimalPointDisplay is not a number then it will equal nothing, however if otherwise then convert it into a string with 0 decimal digits (any number to the right of a decimal point)
+    // If afterDecimalPoint digits do not exist then only return the beforeDecimalPointDisplay, otherwise return beforeDecimalPointDisplay and afterDecimalPoint joined together by a decimal point between them
     getDisplayNumber(number) {
         const stringNumber = number.toString()
-        const integerDigits = parseFloat(stringNumber.split('.')[0])
-        const decimalDigits = stringNumber.split('.')[1]
-        let integerDisplay
-        if (isNaN(integerDigits)) {
-            integerDisplay = ''
+        const beforeDecimalPoint = parseFloat(stringNumber.split('.')[0])
+        const afterDecimalPoint = stringNumber.split('.')[1]
+        let beforeDecimalPointDisplay
+        if(isNaN(beforeDecimalPoint)) {
+            beforeDecimalPointDisplay = ''
         } else {
-            integerDisplay = integerDigits.toLocaleString('en', {
-                maximumFractionDigits: 0 })
-         }
-         if(decimalDigits != null) {
-             return `${integerDisplay}.${decimalDigits}`
-         } else {
-             return integerDisplay
+            beforeDecimalPointDisplay = beforeDecimalPoint.toLocaleString('en', {maximumFractionDigits: 0})
+        }
+        if(afterDecimalPoint != null) {
+            return `${beforeDecimalPointDisplay}.${afterDecimalPoint}`
+        } else {
+            return beforeDecimalPointDisplay
         }
     }
-        
-    // Inner text of the currentOperandTextElement equals the current operand run through the getDisplayNumber function. 
-    // If operation does not equal nothing then inner text element of previousOperandTextElement equals previousOperand with a space and then the operation symbol chosen. If operation does equal nothing then the inner text of the previousOperandTextElement equals nothing. 
+
+    // Displays the number returned by the getDisplayNumber function in the innertext of the currentnumberhtmlelement
+    // If however an operation has been chosen then the innertext of the previousnumberhtmlelement is the number returned by the getdisplaynumber function and the operation the user chose with a space inbetween them. If an operation has not been chosen then the innertext of the previousnumberhtmlelement should stay blank
     updateDisplay() {
-      this.currentOperandTextElement.innerText = this.getDisplayNumber(this.currentOperand)
+        this.currentNumberHtmlElement.innerText = this.getDisplayNumber(this.currentNumber)
       if(this.operation != null) {
-        this.previousOperandTextElement.innerText = `${this.getDisplayNumber(this.previousOperand)} ${this.operation}`
+        this.previousNumberHtmlElement.innerText = `${this.getDisplayNumber(this.previousNumber)} ${this.operation}`
       } else {
-          this.previousOperandTextElement.innerText = ''
+          this.previousNumberHtmlElement.innerText = ''
       }
-  }
+    }
 }
-  
-  // Getting all the relevent elements so that we can use them
-  const numberButtons = document.querySelectorAll('[data-number]')
-  const operationButtons = document.querySelectorAll('[data-operation]')
-  const equalsButton = document.querySelector('[data-equals]')
-  const deleteButton = document.querySelector('[data-delete]')
-  const allClearButton = document.querySelector('[data-all-clear]')
-  const previousOperandTextElement = document.querySelector('[data-previous-operand]')
-  const currentOperandTextElement = document.querySelector('[data-current-operand]')
-  
-  // Constant variable 'calculator' is the Calculator class and is created so we can interact with it
-  const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement)
-  
-  // Loops through all number buttons and listens for a button to be clicked. It passes the correlating number to the appendNumber function. The updateDisplay function is also called each time a button is clicked. 
-  numberButtons.forEach(button => {
+
+// Now we create a variable of calculator so we can interact with the calculator class
+const calculator = new Calculator(currentNumberHtmlElement, previousNumberHtmlElement)
+
+// Loops through all number buttons and listens for a button to be clicked. It passes the correlating number to the appendNumber function. The updateDisplay function is also called each time a button is clicked. 
+numberButtons.forEach(button => {
     button.addEventListener('click', () => {
-      calculator.appendNumber(button.innerText)
+      calculator.numberToString(button.innerText)
       calculator.updateDisplay()
     })
   })
@@ -125,7 +127,7 @@ class Calculator {
   // Loops through all operation buttons and listen for a button to be clicked. It passes the correlating number to the chooseOperation function, and calls the updateDisplay function on every click as well. 
   operationButtons.forEach(button => {
     button.addEventListener('click', () => {
-      calculator.chooseOperation(button.innerText)
+      calculator.chosenOperation(button.innerText)
       calculator.updateDisplay()
     })
   })
@@ -137,8 +139,8 @@ class Calculator {
   })
 
   // Listens for the clear all button to be clicked and calls the clear and update display functions
-  allClearButton.addEventListener('click', button => {
-    calculator.clear()
+  clearAllButton.addEventListener('click', button => {
+    calculator.clearAll()
     calculator.updateDisplay()
 })
 
@@ -147,3 +149,102 @@ deleteButton.addEventListener('click', button => {
     calculator.delete()
     calculator.updateDisplay()
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
